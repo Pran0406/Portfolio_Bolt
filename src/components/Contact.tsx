@@ -16,6 +16,10 @@ export default function Contact() {
     setErrorMsg('');
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase is not configured');
+      }
+
       const { error } = await supabase.from('contact_messages').insert({
         name: form.name.trim(),
         email: form.email.trim(),
@@ -29,7 +33,7 @@ export default function Contact() {
       setTimeout(() => setStatus('idle'), 4000);
     } catch (err) {
       setStatus('error');
-      setErrorMsg('Something went wrong. Please try again or email me directly.');
+      setErrorMsg('The contact form is not configured yet. Please email me directly.');
       setTimeout(() => setStatus('idle'), 6000);
     }
   };

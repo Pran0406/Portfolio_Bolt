@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, hasSupabaseConfig } from '@/lib/supabase';
 import { projects as staticProjects, type Project, type ProjectCategory } from '@/data/content';
 
 const accentMap: Record<string, string> = {
@@ -59,6 +59,14 @@ export function useProjects() {
 
     async function fetchProjects() {
       try {
+        if (!hasSupabaseConfig || !supabase) {
+          if (!cancelled) {
+            setProjects(staticProjects);
+            setLoading(false);
+          }
+          return;
+        }
+
         const { data, error } = await supabase
           .from('projects')
           .select('slug, title, category, description, tagline, impact, tools, challenge, approach, results, insights, image_url, github_url, live_url, sort_order, is_published')
@@ -72,6 +80,7 @@ export function useProjects() {
         }
       } catch {
         // fall back to static data
+        if (!cancelled) setProjects(staticProjects);
       } finally {
         if (!cancelled) setLoading(false);
       }
